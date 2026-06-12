@@ -21,6 +21,7 @@
 - **Base64** — encode and decode any text
 - **URL** — percent-encode and decode
 - **Hex** — convert text to hex bytes and back
+- **Epoch** — convert Unix timestamps to/from human-readable dates
 - **Hex Dump** — xxd-style hex dump with ASCII gutter
 - **JSON** — escape and unescape JSON strings
 - **HTML** — escape and unescape HTML entities
@@ -28,8 +29,9 @@
 - **Smart Case** — camelCase, snake_case, kebab-case, PascalCase
 - **Smart Detect** — auto-detect Base64, URL, Hex, and JSON escape sequences
 - **Stats** — character, line, word, byte, non-ASCII, and space counts
-- **Copy** — click any result to copy to clipboard
-- **Keyboard shortcuts** — press 1-6 for encoders, a/s/b/p for case, u/l/t/r for transforms, d for detect, c to clear
+- **Copy** — click any result to copy to clipboard; Copy All button copies all results at once
+- **Word Frequency** — shows top 5 most common words in stats panel
+- **Keyboard shortcuts** — press 1-6 for encoders, a/s/b/p for case, u/l/t/r for transforms, j/k for JSON, h/n for HTML, d/e for detect/epoch, c to clear
 
 ## Usage
 
