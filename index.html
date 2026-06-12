@@ -85,6 +85,9 @@ textarea::placeholder{color:#414868}
         <button class="btn" data-conv="jsonesc" onclick="convert('jsonesc')">JSON Esc</button>
         <button class="btn" data-conv="jsonunesc" onclick="convert('jsonunesc')">JSON Unesc</button>
       </div>
+      <div class="conv-group">
+        <button class="btn" data-conv="hexdump" onclick="convert('hexdump')">Hex Dump</button>
+      </div>
     </div>
     <div id="resultsContent" style="flex:1;overflow-y:auto">
       <div class="empty-state"><span>Paste text and click a conversion</span><span class="hint">or use auto-count below</span></div>
@@ -140,6 +143,7 @@ function convert(type){
       case 'invert': result=text.replace(/./g,c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()); label='Inverted Case'; break;
       case 'jsonesc': result=JSON.stringify(text).slice(1,-1); label='JSON Escaped'; break;
       case 'jsonunesc': result=JSON.parse('"'+text.replace(/"/g,'\\"')+'"'); label='JSON Unescaped'; break;
+      case 'hexdump': result=hexDump(text); label='Hex Dump'; break;
       default: return;
     }
     document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
@@ -177,6 +181,19 @@ function clearAll(){
   results.innerHTML=`<div class="empty-state"><span>Paste text and click a conversion</span><span class="hint">or use auto-count below</span></div>`;
   document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
   updateStats();
+}
+
+function hexDump(text){
+  const bytes=new TextEncoder().encode(text);
+  const lines=[];
+  for(let i=0;i<bytes.length;i+=16){
+    const slice=bytes.slice(i,i+16);
+    const hex=Array.from(slice).map(b=>b.toString(16).padStart(2,'0')).join(' ');
+    const ascii=Array.from(slice).map(b=>b>=32&&b<=126?String.fromCharCode(b):'.').join('');
+    const addr=i.toString(16).padStart(8,'0');
+    lines.push(`${addr}  ${hex.padEnd(47)}  ${ascii}`);
+  }
+  return lines.join('\n');
 }
 
 function detect(){
