@@ -86,6 +86,10 @@ textarea::placeholder{color:#414868}
         <button class="btn" data-conv="jsonunesc" onclick="convert('jsonunesc')">JSON Unesc</button>
       </div>
       <div class="conv-group">
+        <button class="btn" data-conv="htmlesc" onclick="convert('htmlesc')">HTML Esc</button>
+        <button class="btn" data-conv="htmlunesc" onclick="convert('htmlunesc')">HTML Unesc</button>
+      </div>
+      <div class="conv-group">
         <button class="btn" data-conv="hexdump" onclick="convert('hexdump')">Hex Dump</button>
       </div>
     </div>
@@ -143,6 +147,8 @@ function convert(type){
       case 'invert': result=text.replace(/./g,c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()); label='Inverted Case'; break;
       case 'jsonesc': result=JSON.stringify(text).slice(1,-1); label='JSON Escaped'; break;
       case 'jsonunesc': result=JSON.parse('"'+text.replace(/"/g,'\\"')+'"'); label='JSON Unescaped'; break;
+      case 'htmlesc': result=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); label='HTML Escaped'; break;
+      case 'htmlunesc': result=text.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#x27;/g,"'"); label='HTML Unescaped'; break;
       case 'hexdump': result=hexDump(text); label='Hex Dump'; break;
       default: return;
     }
@@ -261,6 +267,8 @@ document.addEventListener('keydown',e=>{
   else if(k==='t')convert('title');
   else if(k==='r')convert('reverse');
   else if(k==='i')convert('invert');
+  else if(k==='h')convert('htmlesc');
+  else if(k==='n')convert('htmlunesc');
   else if(k==='c')clearAll();
 });
 </script>
