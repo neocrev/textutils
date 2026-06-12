@@ -96,6 +96,10 @@ textarea::placeholder{color:#414868}
         <button class="btn" data-conv="htmlunesc" onclick="convert('htmlunesc')">HTML Unesc</button>
       </div>
       <div class="conv-group">
+        <button class="btn" data-conv="epoch2date" onclick="convert('epoch2date')">Epoch→Date</button>
+        <button class="btn" data-conv="date2epoch" onclick="convert('date2epoch')">Date→Epoch</button>
+      </div>
+      <div class="conv-group">
         <button class="btn" data-conv="hexdump" onclick="convert('hexdump')">Hex Dump</button>
       </div>
     </div>
@@ -159,6 +163,8 @@ function convert(type){
       case 'snake': result=toWords(text).map(w=>w.toLowerCase()).join('_'); label='snake_case'; break;
       case 'kebab': result=toWords(text).map(w=>w.toLowerCase()).join('-'); label='kebab-case'; break;
       case 'pascal': result=toWords(text).map(capitalize).join(''); label='PascalCase'; break;
+      case 'epoch2date': result=epochToDate(text); label='Epoch → Date'; break;
+      case 'date2epoch': result=dateToEpoch(text); label='Date → Epoch'; break;
       case 'hexdump': result=hexDump(text); label='Hex Dump'; break;
       default: return;
     }
@@ -197,6 +203,18 @@ function clearAll(){
   results.innerHTML=`<div class="empty-state"><span>Paste text and click a conversion</span><span class="hint">or use auto-count below</span></div>`;
   document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
   updateStats();
+}
+
+function epochToDate(s){
+  const n=parseFloat(s.trim());
+  if(isNaN(n)) throw new Error('Not a valid number');
+  const d=new Date(n * (n>1e12?1:1000)); // auto-detect ms vs seconds
+  return d.toUTCString()+' / '+d.toISOString();
+}
+function dateToEpoch(s){
+  const d=new Date(s.trim());
+  if(isNaN(d.getTime())) throw new Error('Cannot parse date. Use ISO 8601 e.g. "2026-06-12T11:00:00Z"');
+  return Math.floor(d.getTime()/1000)+' s  ('+d.getTime()+' ms)';
 }
 
 function toWords(s){
@@ -294,6 +312,7 @@ document.addEventListener('keydown',e=>{
   else if(k==='k')convert('jsonunesc');
   else if(k==='h')convert('htmlesc');
   else if(k==='n')convert('htmlunesc');
+  else if(k==='e'){if(e.shiftKey)convert('epoch2date');else convert('date2epoch');}
   else if(k==='d'){if(e.shiftKey)convert('hexdump');else detect();}
   else if(k==='c')clearAll();
 });
