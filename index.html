@@ -267,8 +267,11 @@ document.addEventListener('keydown',e=>{
   else if(k==='t')convert('title');
   else if(k==='r')convert('reverse');
   else if(k==='i')convert('invert');
+  else if(k==='j')convert('jsonesc');
+  else if(k==='k')convert('jsonunesc');
   else if(k==='h')convert('htmlesc');
   else if(k==='n')convert('htmlunesc');
+  else if(k==='d'){if(e.shiftKey)convert('hexdump');else detect();}
   else if(k==='c')clearAll();
 });
 </script>
