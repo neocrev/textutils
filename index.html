@@ -49,6 +49,7 @@ textarea::placeholder{color:#414868}
   <span class="sep">|</span>
   <span style="font-size:12px;color:#565f89">Base64 · URL · Hex · Case · Count</span>
   <span style="flex:1"></span>
+  <button class="btn" id="copyAllBtn" onclick="copyAllResults()" style="display:none">Copy All</button>
   <button class="btn" onclick="clearAll()">Clear</button>
 </header>
 <main>
@@ -180,10 +181,22 @@ function convert(type){
 function updateResults(items){
   results.innerHTML=items.map(item=>`
     <div class="result-item">
-      <div class="label">${item.label} <span class="copied" id="copied-${Date.now()}" style="display:none">✓ copied</span></div>
+      <div class="label">${item.label}</div>
       <div class="value" onclick="copyResult(this,'${esc(item.val)}')">${esc(item.val)}</div>
     </div>
   `).join('');
+  document.getElementById('copyAllBtn').style.display=items.length?'':'none';
+}
+
+function copyAllResults(){
+  const values=[...document.querySelectorAll('.result-item .value')].map(el=>el.textContent.replace('✓ Copied!','').trim()).filter(Boolean);
+  if(!values.length)return;
+  const text=values.join('\n---\n');
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const btn=document.getElementById('copyAllBtn');
+  const orig=btn.textContent;
+  btn.textContent='✓ Copied All!';
+  setTimeout(()=>{btn.textContent=orig;},1200);
 }
 
 function copyResult(el,text){
