@@ -79,6 +79,10 @@ textarea::placeholder{color:#414868}
         <button class="btn" data-conv="reverse" onclick="convert('reverse')">Reverse</button>
         <button class="btn" data-conv="invert" onclick="convert('invert')">Invert Case</button>
       </div>
+      <div class="conv-group">
+        <button class="btn" data-conv="jsonesc" onclick="convert('jsonesc')">JSON Esc</button>
+        <button class="btn" data-conv="jsonunesc" onclick="convert('jsonunesc')">JSON Unesc</button>
+      </div>
     </div>
     <div id="resultsContent" style="flex:1;overflow-y:auto">
       <div class="empty-state"><span>Paste text and click a conversion</span><span class="hint">or use auto-count below</span></div>
@@ -132,6 +136,8 @@ function convert(type){
       case 'title': result=text.replace(/\b\w/g,c=>c.toUpperCase()); label='Title Case'; break;
       case 'reverse': result=text.split('').reverse().join(''); label='Reversed'; break;
       case 'invert': result=text.replace(/./g,c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()); label='Inverted Case'; break;
+      case 'jsonesc': result=JSON.stringify(text).slice(1,-1); label='JSON Escaped'; break;
+      case 'jsonunesc': result=JSON.parse('"'+text.replace(/"/g,'\\"')+'"'); label='JSON Unescaped'; break;
       default: return;
     }
     document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
