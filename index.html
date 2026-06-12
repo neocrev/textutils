@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>textutils — Developer Text Utilities</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237aa2f7' stroke-width='1.5' stroke-linecap='round'><polyline points='4 7 4 4 20 4 20 7'/><line x1='9' y1='20' x2='15' y2='20'/><line x1='12' y1='4' x2='12' y2='20'/></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f0f1a;color:#c0caf5;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#1a1b2e;border-bottom:1px solid #24253a;flex-wrap:wrap}
+header h1{font-size:16px;font-weight:700;color:#e0e0f0;margin-right:8px}
+header .sep{color:#414868;font-size:13px;user-select:none}
+.btn{padding:5px 10px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:background .12s;background:#24253a;color:#c0caf5}
+.btn:hover{background:#32345a}
+.btn.active{background:#7aa2f7;color:#0f0f1a}
+.btn-primary{background:#7aa2f7;color:#0f0f1a}
+.btn-primary:hover{background:#89b4fa}
+main{flex:1;display:flex;overflow:hidden;min-height:0}
+.input-panel{width:50%;display:flex;flex-direction:column;border-right:1px solid #24253a;min-width:0}
+.results-panel{width:50%;display:flex;flex-direction:column;min-width:0;overflow-y:auto}
+.panel-header{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#565f89;background:#1a1b2e;border-bottom:1px solid #24253a}
+.panel-header .count{font-size:10px;color:#414868;font-weight:400}
+textarea{flex:1;width:100%;background:#0f0f1a;border:none;color:#c0caf5;padding:12px;font-family:'SF Mono','Fira Code',monospace;font-size:13px;line-height:1.5;resize:none;tab-size:2}
+textarea:focus{outline:none}
+textarea::placeholder{color:#414868}
+.result-item{padding:12px;border-bottom:1px solid #1a1b2e}
+.result-item:last-child{border-bottom:none}
+.result-item .label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#565f89;margin-bottom:4px}
+.result-item .value{font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:#c0caf5;word-break:break-all;cursor:pointer;padding:4px 8px;border-radius:4px;transition:background .12s}
+.result-item .value:hover{background:#1a1b2e}
+.result-item .value .copied{color:#7ecb8b;font-size:10px;margin-left:8px;display:none}
+.convert-row{display:flex;gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid #24253a;flex-wrap:wrap}
+.convert-row .conv-group{display:flex;gap:2px}
+.convert-row .conv-group .btn{border-radius:0;font-size:11px;padding:4px 8px}
+.convert-row .conv-group .btn:first-child{border-radius:4px 0 0 4px}
+.convert-row .conv-group .btn:last-child{border-radius:0 4px 4px 0}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#565f89;font-size:14px;gap:4px}
+.empty-state .hint{font-size:12px;color:#414868}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#24253a;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#32345a}
+</style>
+</head>
+<body>
+<header>
+  <h1>textutils</h1>
+  <span class="sep">|</span>
+  <span style="font-size:12px;color:#565f89">Base64 · URL · Hex · Case · Count</span>
+  <span style="flex:1"></span>
+  <button class="btn" onclick="clearAll()">Clear</button>
+</header>
+<main>
+  <div class="input-panel">
+    <div class="panel-header"><span class="label">Input</span><span class="count" id="inputStats">0 chars, 0 lines</span></div>
+    <textarea id="input" placeholder="Paste text here to convert..." oninput="update()" spellcheck="false"></textarea>
+  </div>
+  <div class="results-panel" id="results">
+    <div class="convert-row">
+      <div class="conv-group">
+        <button class="btn" data-conv="base64enc" onclick="convert('base64enc')">B64 Enc</button>
+        <button class="btn" data-conv="base64dec" onclick="convert('base64dec')">B64 Dec</button>
+      </div>
+      <div class="conv-group">
+        <button class="btn" data-conv="urlenc" onclick="convert('urlenc')">URL Enc</button>
+        <button class="btn" data-conv="urldec" onclick="convert('urldec')">URL Dec</button>
+      </div>
+      <div class="conv-group">
+        <button class="btn" data-conv="hexenc" onclick="convert('hexenc')">Hex Enc</button>
+        <button class="btn" data-conv="hexdec" onclick="convert('hexdec')">Hex Dec</button>
+      </div>
+      <div class="conv-group">
+        <button class="btn" data-conv="upper" onclick="convert('upper')">UPPER</button>
+        <button class="btn" data-conv="lower" onclick="convert('lower')">lower</button>
+        <button class="btn" data-conv="title" onclick="convert('title')">Title</button>
+      </div>
+      <div class="conv-group">
+        <button class="btn" data-conv="reverse" onclick="convert('reverse')">Reverse</button>
+        <button class="btn" data-conv="invert" onclick="convert('invert')">Invert Case</button>
+      </div>
+    </div>
+    <div id="resultsContent" style="flex:1;overflow-y:auto">
+      <div class="empty-state"><span>Paste text and click a conversion</span><span class="hint">or use auto-count below</span></div>
+    </div>
+  </div>
+</main>
+
+<script>
+function qs(s){return document.querySelector(s)}
+const input=document.getElementById('input');
+const results=document.getElementById('resultsContent');
+let debounce=null;
+
+function update(){
+  clearTimeout(debounce);
+  debounce=setTimeout(updateStats,200);
+  updateStats();
+}
+
+function updateStats(){
+  const text=input.value;
+  const chars=text.length;
+  const lines=text ? text.split('\n').length : 0;
+  const words=text.trim() ? text.trim().split(/\s+/).length : 0;
+  document.getElementById('inputStats').textContent=`${chars} chars, ${lines} lines, ${words} words`;
+  showCount(text);
+}
+
+function showCount(text){
+  if(!text.trim())return;
+  const bytes=new Blob([text]).size;
+  const nonAscii=(text.match(/[^\x00-\x7F]/g)||[]).length;
+  const spaces=(text.match(/ /g)||[]).length;
+  updateResults([{label:'Bytes', val:`${bytes} (${bytes>1024?(bytes/1024).toFixed(1)+' KB':bytes+' B'})`},{label:'Non-ASCII', val:nonAscii},{label:'Spaces', val:spaces}]);
+}
+
+function convert(type){
+  const text=input.value;
+  if(!text.trim())return;
+  let result,label;
+  try{
+    switch(type){
+      case 'base64enc': result=btoa(unescape(encodeURIComponent(text))); label='Base64 Encoded'; break;
+      case 'base64dec': result=decodeURIComponent(escape(atob(text.trim()))); label='Base64 Decoded'; break;
+      case 'urlenc': result=encodeURIComponent(text); label='URL Encoded'; break;
+      case 'urldec': result=decodeURIComponent(text); label='URL Decoded'; break;
+      case 'hexenc': result=Array.from(new TextEncoder().encode(text)).map(b=>b.toString(16).padStart(2,'0')).join(' '); label='Hex Encoded'; break;
+      case 'hexdec': result=new TextDecoder().decode(new Uint8Array(text.trim().split(/\s+/).map(h=>parseInt(h,16)))); label='Hex Decoded'; break;
+      case 'upper': result=text.toUpperCase(); label='UPPERCASE'; break;
+      case 'lower': result=text.toLowerCase(); label='lowercase'; break;
+      case 'title': result=text.replace(/\b\w/g,c=>c.toUpperCase()); label='Title Case'; break;
+      case 'reverse': result=text.split('').reverse().join(''); label='Reversed'; break;
+      case 'invert': result=text.replace(/./g,c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()); label='Inverted Case'; break;
+      default: return;
+    }
+    document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
+    const btn=document.querySelector(`[data-conv="${type}"]`);
+    if(btn)btn.className='btn active';
+    updateResults([{label,val:result}]);
+  }catch(e){
+    updateResults([{label:'Error',val:e.message}]);
+  }
+}
+
+function updateResults(items){
+  results.innerHTML=items.map(item=>`
+    <div class="result-item">
+      <div class="label">${item.label} <span class="copied" id="copied-${Date.now()}" style="display:none">✓ copied</span></div>
+      <div class="value" onclick="copyResult(this,'${esc(item.val)}')">${esc(item.val)}</div>
+    </div>
+  `).join('');
+}
+
+function copyResult(el,text){
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const orig=el.textContent;
+  el.textContent='✓ Copied!';
+  el.style.color='#7ecb8b';
+  setTimeout(()=>{el.textContent=orig;el.style.color='';},800);
+}
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function clearAll(){
+  input.value='';
+  results.innerHTML=`<div class="empty-state"><span>Paste text and click a conversion</span><span class="hint">or use auto-count below</span></div>`;
+  document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
+  updateStats();
+}
+
+input.addEventListener('paste',()=>setTimeout(updateStats,50));
+</script>
+</body>
+</html>
