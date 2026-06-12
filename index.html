@@ -172,6 +172,23 @@ function clearAll(){
 }
 
 input.addEventListener('paste',()=>setTimeout(updateStats,50));
+
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  const k=e.key.toLowerCase();
+  if(k==='1')convert('base64enc');
+  else if(k==='2')convert('base64dec');
+  else if(k==='3')convert('urlenc');
+  else if(k==='4')convert('urldec');
+  else if(k==='5')convert('hexenc');
+  else if(k==='6')convert('hexdec');
+  else if(k==='u')convert('upper');
+  else if(k==='l')convert('lower');
+  else if(k==='t')convert('title');
+  else if(k==='r')convert('reverse');
+  else if(k==='i')convert('invert');
+  else if(k==='c')clearAll();
+});
 </script>
 </body>
 </html>
