@@ -101,6 +101,9 @@ textarea::placeholder{color:#414868}
         <button class="btn" data-conv="date2epoch" onclick="convert('date2epoch')">Date→Epoch</button>
       </div>
       <div class="conv-group">
+        <button class="btn btn-primary" data-conv="uuid" onclick="convert('uuid')">UUID</button>
+      </div>
+      <div class="conv-group">
         <button class="btn" data-conv="hexdump" onclick="convert('hexdump')">Hex Dump</button>
       </div>
     </div>
@@ -176,6 +179,7 @@ function convert(type){
       case 'pascal': result=toWords(text).map(capitalize).join(''); label='PascalCase'; break;
       case 'epoch2date': result=epochToDate(text); label='Epoch → Date'; break;
       case 'date2epoch': result=dateToEpoch(text); label='Date → Epoch'; break;
+      case 'uuid': result=crypto.randomUUID(); label='UUID v4'; break;
       case 'hexdump': result=hexDump(text); label='Hex Dump'; break;
       default: return;
     }
@@ -336,6 +340,7 @@ document.addEventListener('keydown',e=>{
   else if(k==='h')convert('htmlesc');
   else if(k==='n')convert('htmlunesc');
   else if(k==='e'){if(e.shiftKey)convert('epoch2date');else convert('date2epoch');}
+  else if(k==='g')convert('uuid');
   else if(k==='d'){if(e.shiftKey)convert('hexdump');else detect();}
   else if(k==='c')clearAll();
 });
