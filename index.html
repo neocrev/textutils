@@ -136,7 +136,17 @@ function showCount(text){
   const bytes=new Blob([text]).size;
   const nonAscii=(text.match(/[^\x00-\x7F]/g)||[]).length;
   const spaces=(text.match(/ /g)||[]).length;
-  updateResults([{label:'Bytes', val:`${bytes} (${bytes>1024?(bytes/1024).toFixed(1)+' KB':bytes+' B'})`},{label:'Non-ASCII', val:nonAscii},{label:'Spaces', val:spaces}]);
+  const items=[
+    {label:'Bytes', val:`${bytes} (${bytes>1024?(bytes/1024).toFixed(1)+' KB':bytes+' B'})`},
+    {label:'Non-ASCII', val:nonAscii},
+    {label:'Spaces', val:spaces},
+  ];
+  // Word frequency
+  const freq={};
+  text.trim().toLowerCase().split(/\s+/).filter(Boolean).forEach(w=>{const k=w.replace(/[^a-z0-9]/g,'');if(k&&k.length>1)freq[k]=(freq[k]||0)+1;});
+  const top=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(top.length) items.push({label:'Top Words', val:top.map(([w,c])=>`${w} (${c})`).join(' · ')});
+  updateResults(items);
 }
 
 function convert(type){
