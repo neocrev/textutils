@@ -78,6 +78,12 @@ textarea::placeholder{color:#414868}
         <button class="btn" data-conv="title" onclick="convert('title')">Title</button>
       </div>
       <div class="conv-group">
+        <button class="btn" data-conv="camel" onclick="convert('camel')">camelCase</button>
+        <button class="btn" data-conv="snake" onclick="convert('snake')">snake_case</button>
+        <button class="btn" data-conv="kebab" onclick="convert('kebab')">kebab-case</button>
+        <button class="btn" data-conv="pascal" onclick="convert('pascal')">PascalCase</button>
+      </div>
+      <div class="conv-group">
         <button class="btn" data-conv="reverse" onclick="convert('reverse')">Reverse</button>
         <button class="btn" data-conv="invert" onclick="convert('invert')">Invert Case</button>
       </div>
@@ -149,6 +155,10 @@ function convert(type){
       case 'jsonunesc': result=JSON.parse('"'+text.replace(/"/g,'\\"')+'"'); label='JSON Unescaped'; break;
       case 'htmlesc': result=text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); label='HTML Escaped'; break;
       case 'htmlunesc': result=text.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#x27;/g,"'"); label='HTML Unescaped'; break;
+      case 'camel': result=toWords(text).map((w,i)=>i?capitalize(w):w.toLowerCase()).join(''); label='camelCase'; break;
+      case 'snake': result=toWords(text).map(w=>w.toLowerCase()).join('_'); label='snake_case'; break;
+      case 'kebab': result=toWords(text).map(w=>w.toLowerCase()).join('-'); label='kebab-case'; break;
+      case 'pascal': result=toWords(text).map(capitalize).join(''); label='PascalCase'; break;
       case 'hexdump': result=hexDump(text); label='Hex Dump'; break;
       default: return;
     }
@@ -188,6 +198,15 @@ function clearAll(){
   document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
   updateStats();
 }
+
+function toWords(s){
+  // Split on spaces, underscores, hyphens, or camelCase boundaries
+  return s.trim().split(/[\s_\-]+/).flatMap(w=>{
+    // Further split camelCase: "helloWorld" → ["hello", "World"]
+    return w.split(/(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/);
+  }).filter(Boolean);
+}
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1).toLowerCase();}
 
 function hexDump(text){
   const bytes=new TextEncoder().encode(text);
@@ -265,6 +284,10 @@ document.addEventListener('keydown',e=>{
   else if(k==='u')convert('upper');
   else if(k==='l')convert('lower');
   else if(k==='t')convert('title');
+  else if(k==='a')convert('camel');
+  else if(k==='s')convert('snake');
+  else if(k==='b')convert('kebab');
+  else if(k==='p')convert('pascal');
   else if(k==='r')convert('reverse');
   else if(k==='i')convert('invert');
   else if(k==='j')convert('jsonesc');
