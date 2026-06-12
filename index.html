@@ -58,6 +58,8 @@ textarea::placeholder{color:#414868}
   </div>
   <div class="results-panel" id="results">
     <div class="convert-row">
+      <button class="btn btn-primary" data-conv="detect" onclick="detect()" title="Auto-detect encoding">Detect</button>
+      <span style="color:#414868;font-size:12px">|</span>
       <div class="conv-group">
         <button class="btn" data-conv="base64enc" onclick="convert('base64enc')">B64 Enc</button>
         <button class="btn" data-conv="base64dec" onclick="convert('base64dec')">B64 Dec</button>
@@ -175,6 +177,55 @@ function clearAll(){
   results.innerHTML=`<div class="empty-state"><span>Paste text and click a conversion</span><span class="hint">or use auto-count below</span></div>`;
   document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
   updateStats();
+}
+
+function detect(){
+  const text=input.value.trim();
+  if(!text){updateStats();return;}
+  document.querySelectorAll('[data-conv]').forEach(b=>b.className='btn');
+  const detectBtn=document.querySelector('[data-conv="detect"]');
+  if(detectBtn)detectBtn.className='btn btn-primary active';
+  // Try base64 first
+  const b64=/^[A-Za-z0-9+/]*={0,2}$/;
+  if(text.length%4===0&&b64.test(text)&&text.length>4){
+    try{
+      const dec=decodeURIComponent(escape(atob(text)));
+      if(dec.length>0){
+        updateResults([{label:'Detected: Base64',val:dec}]);
+        return;
+      }
+    }catch(e){}
+  }
+  // Try URL
+  if(text.includes('%')){
+    try{
+      const dec=decodeURIComponent(text);
+      if(dec!==text){
+        updateResults([{label:'Detected: URL Encoded',val:dec}]);
+        return;
+      }
+    }catch(e){}
+  }
+  // Try hex
+  const hex=/^([0-9a-fA-F]{2}\s)*[0-9a-fA-F]{2}$/;
+  if(hex.test(text)){
+    try{
+      const dec=new TextDecoder().decode(new Uint8Array(text.trim().split(/\s+/).map(h=>parseInt(h,16))));
+      if(dec.length>0&&!/[\x00-\x08\x0e-\x1f]/.test(dec)){
+        updateResults([{label:'Detected: Hex',val:dec}]);
+        return;
+      }
+    }catch(e){}
+  }
+  // Try JSON (escape sequences)
+  if(text.includes('\\')&&(text.includes('\\n')||text.includes('\\t')||text.includes('\\\"'))){
+    try{
+      const dec=JSON.parse('"'+text.replace(/"/g,'\\"')+'"');
+      updateResults([{label:'Detected: JSON Escaped',val:dec}]);
+      return;
+    }catch(e){}
+  }
+  updateResults([{label:'Detect: No encoding detected',val:'The input appears to be plain text or uses an unsupported encoding.'}]);
 }
 
 input.addEventListener('paste',()=>setTimeout(updateStats,50));
