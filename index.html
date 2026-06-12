@@ -87,6 +87,7 @@ textarea::placeholder{color:#414868}
       <div class="conv-group">
         <button class="btn" data-conv="reverse" onclick="convert('reverse')">Reverse</button>
         <button class="btn" data-conv="invert" onclick="convert('invert')">Invert Case</button>
+        <button class="btn" data-conv="sort" onclick="convert('sort')">Sort Lines</button>
       </div>
       <div class="conv-group">
         <button class="btn" data-conv="jsonesc" onclick="convert('jsonesc')">JSON Esc</button>
@@ -168,6 +169,7 @@ function convert(type){
       case 'lower': result=text.toLowerCase(); label='lowercase'; break;
       case 'title': result=text.replace(/\b\w/g,c=>c.toUpperCase()); label='Title Case'; break;
       case 'reverse': result=text.split('').reverse().join(''); label='Reversed'; break;
+      case 'sort': result=text.split('\n').filter(Boolean).sort().join('\n'); label='Sorted Lines'; break;
       case 'invert': result=text.replace(/./g,c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()); label='Inverted Case'; break;
       case 'jsonesc': result=JSON.stringify(text).slice(1,-1); label='JSON Escaped'; break;
       case 'jsonunesc': result=JSON.parse('"'+text.replace(/"/g,'\\"')+'"'); label='JSON Unescaped'; break;
@@ -334,6 +336,7 @@ document.addEventListener('keydown',e=>{
   else if(k==='b')convert('kebab');
   else if(k==='p')convert('pascal');
   else if(k==='r')convert('reverse');
+  else if(k==='o')convert('sort');
   else if(k==='i')convert('invert');
   else if(k==='j')convert('jsonesc');
   else if(k==='k')convert('jsonunesc');
